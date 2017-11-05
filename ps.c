@@ -6,15 +6,16 @@
 // Per-process state
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 struct proc {
-  enum procstate state;        // Process state
-  int pid;            // Process ID
-  int ppid ;          // Parent process ID
-  char name[16];               // Process name 
+  enum procstate state; // Process state
+  int pid;              // Process ID
+  int ppid ;            // Parent process ID
+  uint ctime;           // Creation time
+  char name[16];        // Process name
 };
 
 #define MAX_PROC 10
 
-int main(int argc, char *argv[]) {  
+int main(int argc, char *argv[]) {
   struct proc ptable[MAX_PROC];
   struct proc *p;
   int err;
@@ -24,7 +25,7 @@ int main(int argc, char *argv[]) {
     printf(1,"Error getting ptable");
   
   p = &ptable[0];
-  printf(1, "\nPID         STATE          NAME\n");
+  printf(1, "\nPID     STATE     C_TIME      NAME\n");
   while(p != &ptable[MAX_PROC-1] && p->state != UNUSED){
     printf(1,"%d      ", p->pid);
     switch(p->state){
@@ -47,7 +48,7 @@ int main(int argc, char *argv[]) {
         printf(1," %s       ", "ZOMBIE");
         break;
     }
-    printf(1, "%s\n", p->name);
+    printf(1, "%d         %s\n",p->ctime, p->name);
     p++;
   }
         

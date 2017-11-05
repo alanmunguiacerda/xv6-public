@@ -112,9 +112,11 @@ int sys_getptable(void) {
   while(buf + size > s && p->state != UNUSED){
     *(int *)s = p->state;
     s+=4;
-    *(int *)s = p -> pid;
+    *(int *)s = p->pid;
     s+=4;
     *(int *)s = p->parent->pid;
+    s+=4;
+    *(uint *)s = p->ctime;
     s+=4;
     memmove(s,p->name,16);
     s+=16;

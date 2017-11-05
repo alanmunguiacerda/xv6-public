@@ -25,10 +25,10 @@ int main(int argc, char *argv[]) {
       printf(1, "Parent %d creating child %d\n", getpid(), id);
       wait();
     } else {
-      printf(1, "Child %d created\n", getpid());
       for (z = 0; z < 400000000; z += d) {
         x = x + 3.14 * 89.55;
       }
+      printf(1, "Child %d ended\n", getpid());
       break;
     }
   }
