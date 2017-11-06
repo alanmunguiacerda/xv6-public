@@ -65,6 +65,21 @@ myproc(void) {
   return p;
 }
 
+
+uint rand (void) {
+   static uint z1 = 12345, z2 = 12345, z3 = 12345, z4 = 12345;
+   uint b;
+   b  = ((z1 << 6) ^ z1) >> 13;
+   z1 = ((z1 & 4294967294U) << 18) ^ b;
+   b  = ((z2 << 2) ^ z2) >> 27; 
+   z2 = ((z2 & 4294967288U) << 2) ^ b;
+   b  = ((z3 << 13) ^ z3) >> 21;
+   z3 = ((z3 & 4294967280U) << 7) ^ b;
+   b  = ((z4 << 3) ^ z4) >> 12;
+   z4 = ((z4 & 4294967168U) << 13) ^ b;
+   return (int)(z1 ^ z2 ^ z3 ^ z4);
+}
+
 //PAGEBREAK: 32
 // Look in the process table for an UNUSED proc.
 // If found, change state to EMBRYO and initialize
@@ -88,6 +103,11 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  if (p->pid < 3) {
+    p->requiredTicks = 1;
+  } else {
+    p->requiredTicks = rand() % 22 + 2;
+  }
 
   release(&ptable.lock);
 
@@ -323,6 +343,7 @@ void
 scheduler(void)
 {
   struct proc *p;
+  struct proc *p1;
   struct cpu *c = mycpu();
   c->proc = 0;
   
@@ -330,28 +351,32 @@ scheduler(void)
     // Enable interrupts on this processor.
     sti();
 
+    struct proc *minP = 0;
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
+      
+      minP = p;
+      for (p1 = ptable.proc; p1 < &ptable.proc[NPROC]; p1++) {
+        if (p1->state != RUNNABLE) continue;
+        if (minP->requiredTicks > p1->requiredTicks) minP = p1;
+      }
+      
+      c->proc = minP;
+      switchuvm(minP);
+      minP->state = RUNNING;
 
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-      c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
-
-      swtch(&(c->scheduler), p->context);
+      swtch(&(c->scheduler), minP->context);
       switchkvm();
 
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
     }
-    release(&ptable.lock);
 
+    release(&ptable.lock);
   }
 }
 
