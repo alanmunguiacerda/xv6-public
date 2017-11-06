@@ -116,6 +116,8 @@ int sys_getptable(void) {
     s+=4;
     *(int *)s = p->parent->pid;
     s+=4;
+    *(int *)s = p->requiredTicks;
+    s+=4;
     memmove(s,p->name,16);
     s+=16;
     p++;

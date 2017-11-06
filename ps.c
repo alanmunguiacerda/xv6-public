@@ -9,7 +9,8 @@ struct proc {
   enum procstate state;        // Process state
   int pid;            // Process ID
   int ppid ;          // Parent process ID
-  char name[16];               // Process name 
+  int requiredTicks;  // Ticks to complete
+  char name[16];      // Process name 
 };
 
 #define MAX_PROC 10
@@ -24,9 +25,9 @@ int main(int argc, char *argv[]) {
     printf(1,"Error getting ptable");
   
   p = &ptable[0];
-  printf(1, "\nPID         STATE          NAME\n");
+  printf(1, "\nPID   TICKS    STATE          NAME\n");
   while(p != &ptable[MAX_PROC-1] && p->state != UNUSED){
-    printf(1,"%d      ", p->pid);
+    printf(1,"%d     %d      ", p->pid, p->requiredTicks);
     switch(p->state){
       case UNUSED:
         printf(1," %s       ", "UNUSED");
