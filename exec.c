@@ -94,7 +94,7 @@ exec(char *path, char **argv)
       
   safestrcpy(curproc->name, last, sizeof(curproc->name));
   if (strncmp(curproc->name, "ps", 3) == 0) {
-    curproc->requiredTicks = 1;
+    curproc->priority = 1;
   }
 
   // Commit to the user image.

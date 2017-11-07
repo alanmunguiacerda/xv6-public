@@ -104,9 +104,9 @@ found:
   p->state = EMBRYO;
   p->pid = nextpid++;
   if (p->pid < 3) {
-    p->requiredTicks = 1;
+    p->priority = 1;
   } else {
-    p->requiredTicks = rand() % 22 + 2;
+    p->priority = rand() % 22 + 2;
   }
 
   release(&ptable.lock);
@@ -361,7 +361,7 @@ scheduler(void)
       minP = p;
       for (p1 = ptable.proc; p1 < &ptable.proc[NPROC]; p1++) {
         if (p1->state != RUNNABLE) continue;
-        if (minP->requiredTicks > p1->requiredTicks) minP = p1;
+        if (minP->priority > p1->priority) minP = p1;
       }
       
       c->proc = minP;
